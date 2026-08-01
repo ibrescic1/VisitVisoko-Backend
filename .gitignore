@@ -483,4 +483,3 @@ $RECYCLE.BIN/
 
 # Local environment configuration & connection strings
 appsettings.Development.json
-appsettings.json
