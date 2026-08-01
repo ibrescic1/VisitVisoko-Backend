@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="VisitVisoko.API/VisitVisoko.API.csproj" />
+  <Project Path="VisitVisoko.Domain/VisitVisoko.Domain.csproj" />
+  <Project Path="VisitVisoko.Infrastructure/VisitVisoko.Infrastructure.csproj" />
+  <Project Path="VisitVisoko.Services/VisitVisoko.Services.csproj" />
+</Solution>

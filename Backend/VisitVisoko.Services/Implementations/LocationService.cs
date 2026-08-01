@@ -1,0 +1,109 @@
+using VisitVisoko.Domain.Interfaces;
+using VisitVisoko.Services.DTOs;
+using VisitVisoko.Services.Interfaces;
+using VisitVisoko.Domain.Entities;
+
+namespace VisitVisoko.Services.Implementations;
+
+public class LocationService : ILocationService
+{
+	private readonly ILocationRepository _locationRepository;
+
+	public LocationService(ILocationRepository locationRepository)
+	{
+		_locationRepository = locationRepository;
+	}
+
+	public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync()
+	{
+		var locations = await _locationRepository.GetAllAsync();
+
+		return locations.Select(l => new LocationDto
+		{
+			Id = l.Id,
+			Title = l.Title,
+			Description = l.Description,
+			Address = l.Address,
+			Latitude = l.Latitude,
+			Longitude = l.Longitude,
+			CategoryName = l.Category != null? l.Category.Name : string.Empty,
+			ImageUrl = l.ImageUrl
+		});
+
+	}
+
+	public async Task<LocationDto?> GetLocationByIdAsync(int id)
+	{
+		var l = await _locationRepository.GetByIdAsync(id);
+		if (l == null) return null;
+
+		return new LocationDto
+		{
+			Id = l.Id,
+			Title = l.Title,
+			Description = l.Description,
+			Address = l.Address,
+			Latitude = l.Latitude,
+			Longitude = l.Longitude,
+			ImageUrl = l.ImageUrl,
+			CategoryName = l.Category != null ? l.Category.Name : string.Empty
+		};
+
+	}
+
+	public async Task<LocationDto> CreateLocationAsync(CreateLocationDto dto)
+	{
+
+		var location = new Location
+		{
+			Title = dto.Name,
+			Description = dto.Description,
+			Address = dto.Address,
+			Latitude = dto.Latitude,
+			Longitude = dto.Longitude,
+			ImageUrl = dto.ImageUrl,
+			CategoryId = dto.CategoryId
+		};
+
+		await _locationRepository.AddAsync(location);
+
+		return new LocationDto
+		{
+			Id = location.Id,
+			Title = location.Title,
+			Description = location.Description,
+			Address = location.Address,
+			Latitude = location.Latitude,
+			Longitude = location.Longitude,
+			ImageUrl = location.ImageUrl,
+			CategoryName = string.Empty
+		};
+
+	}
+
+	public async Task<bool> DeleteLocationAsync(int id) 
+	{ 
+		var existing = await _locationRepository.GetByIdAsync(id);
+		if(existing == null) return false;
+
+		await _locationRepository.DeleteAsync(id);
+		return true;
+	}
+
+	public async Task<bool> UpdateLocationAsync(int id, UpdateLocationDto dto)
+	{
+		var location = await _locationRepository.GetByIdAsync(id);
+		if (location == null) return false;
+
+		location.Title = dto.Title;
+		location.Description = dto.Description;
+		location.Address = dto.Address;
+		location.Latitude = dto.Latitude;
+		location.Longitude = dto.Longitude;
+		location.ImageUrl = dto.ImageUrl;
+		location.CategoryId = dto.CategoryId;
+
+		await _locationRepository.UpdateAsync(location);
+		return true;
+	}
+}
