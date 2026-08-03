@@ -8,4 +8,5 @@ public interface ILocationRepository
 	Task AddAsync(Location location);
 	Task UpdateAsync(Location location);
 	Task DeleteAsync(int id);
+	Task <IEnumerable<Location>>GetByCategoryIdAsync(int categoryId);
 }

@@ -56,7 +56,7 @@ public class LocationService : ILocationService
 
 		var location = new Location
 		{
-			Title = dto.Name,
+			Title = dto.Title,
 			Description = dto.Description,
 			Address = dto.Address,
 			Latitude = dto.Latitude,
@@ -105,5 +105,21 @@ public class LocationService : ILocationService
 
 		await _locationRepository.UpdateAsync(location);
 		return true;
+	}
+
+	public async Task<IEnumerable<LocationDto>> GetLocationsByCategoryIdAsync(int categoryId)
+	{
+		var locations = await _locationRepository.GetByCategoryIdAsync(categoryId);
+		return locations.Select(l => new LocationDto
+		{
+			Id = l.Id,
+			Title = l.Title,
+			Description = l.Description,
+			Address = l.Address,
+			Latitude = l.Latitude,
+			Longitude = l.Longitude,
+			ImageUrl = l.ImageUrl,
+			CategoryName = l.Category != null ? l.Category.Name : string.Empty
+		});
 	}
 }

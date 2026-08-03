@@ -52,4 +52,11 @@ public class LocationsController : ControllerBase
 		if (!updated) return NotFound();
 		return NoContent();
 	}
+
+	[HttpGet("category/{categoryId}")]
+	public async Task<IActionResult> GetByCategoryId(int categoryId)
+	{
+		var locations = await _locationService.GetLocationsByCategoryIdAsync(categoryId);
+		return Ok(locations);
+	}
 }

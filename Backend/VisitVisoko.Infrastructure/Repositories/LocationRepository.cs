@@ -40,4 +40,9 @@ public class LocationRepository : ILocationRepository {
 			await _context.SaveChangesAsync();
 		}
 	}
+
+	public async Task <IEnumerable<Location>> GetByCategoryIdAsync(int categoryId)
+	{
+		return await _context.Locations.Include(l => l.Category).Where(l => l.CategoryId == categoryId).AsNoTracking().ToListAsync();
+	}
 }
