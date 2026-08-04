@@ -483,3 +483,9 @@ $RECYCLE.BIN/
 
 # Baza podaci
 appsettings.Development.json
+
+# Svi uploadovani fajlovi u uploads folderu
+wwwroot/uploads/images/*
+
+# Samo .gitkeep fajl kako bi struktura foldera ostala na GitHubu
+!wwwroot/uploads/images/.gitkeep
