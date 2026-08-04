@@ -11,18 +11,27 @@ public class FileService : IFileService
 	{
 		_environment = environment;
 	}
+
 	public async Task<string> SaveFileAsync(IFormFile file, string[] allowedExtensions)
 	{
 		if (file == null || file.Length == 0)
 			throw new ArgumentException("Fajl je prazan.");
-		var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
+		var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 		if (!allowedExtensions.Contains(extension))
 			throw new ArgumentException($"Nedozvoljen format fajla. Dozvoljeni su: {string.Join(", ", allowedExtensions)}");
-		var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
-		var contentPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-		var path = Path.Combine(contentPath, "uploads", "images");
+		var currentPath = AppDomain.CurrentDomain.BaseDirectory;
+
+		var solutionRoot = currentPath;
+		while (!Directory.GetDirectories(solutionRoot).Any(d => d.EndsWith("VisitVisoko.API")))
+		{
+			var parent = Directory.GetParent(solutionRoot);
+			if (parent == null) break;
+			solutionRoot = parent.FullName;
+		}
+
+		var path = Path.Combine(solutionRoot, "VisitVisoko.API", "wwwroot", "uploads", "images");
 
 		if (!Directory.Exists(path))
 		{
@@ -42,17 +51,25 @@ public class FileService : IFileService
 
 	public bool DeleteFile(string relativePath)
 	{
-		if (string.IsNullOrEmpty(relativePath)) return false;
+		if (string.IsNullOrEmpty(relativePath))
+			return false;
 
-		var contentPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-		var filePath = Path.Combine(contentPath, relativePath.TrimStart('/'));
+		var currentPath = AppDomain.CurrentDomain.BaseDirectory;
+		var solutionRoot = currentPath;
+		while (!Directory.GetDirectories(solutionRoot).Any(d => d.EndsWith("VisitVisoko.API")))
+		{
+			var parent = Directory.GetParent(solutionRoot);
+			if (parent == null) break;
+			solutionRoot = parent.FullName;
+		}
+
+		var filePath = Path.Combine(solutionRoot, "VisitVisoko.API", "wwwroot", relativePath.TrimStart('/'));
 
 		if (File.Exists(filePath))
 		{
 			File.Delete(filePath);
 			return true;
 		}
-
 		return false;
 	}
 }

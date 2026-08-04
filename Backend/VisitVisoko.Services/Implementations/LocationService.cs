@@ -17,7 +17,6 @@ public class LocationService : ILocationService
 	public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync()
 	{
 		var locations = await _locationRepository.GetAllAsync();
-
 		return locations.Select(l => new LocationDto
 		{
 			Id = l.Id,
@@ -26,10 +25,10 @@ public class LocationService : ILocationService
 			Address = l.Address,
 			Latitude = l.Latitude,
 			Longitude = l.Longitude,
-			CategoryName = l.Category != null? l.Category.Name : string.Empty,
+			CategoryId = l.CategoryId, 
+			CategoryName = l.Category != null ? l.Category.Name : string.Empty,
 			ImageUrl = l.ImageUrl
 		});
-
 	}
 
 	public async Task<LocationDto?> GetLocationByIdAsync(int id)
@@ -45,15 +44,14 @@ public class LocationService : ILocationService
 			Address = l.Address,
 			Latitude = l.Latitude,
 			Longitude = l.Longitude,
+			CategoryId = l.CategoryId, 
 			ImageUrl = l.ImageUrl,
 			CategoryName = l.Category != null ? l.Category.Name : string.Empty
 		};
-
 	}
 
 	public async Task<LocationDto> CreateLocationAsync(CreateLocationDto dto)
 	{
-
 		var location = new Location
 		{
 			Title = dto.Title,
@@ -67,6 +65,8 @@ public class LocationService : ILocationService
 
 		await _locationRepository.AddAsync(location);
 
+		var savedLocation = await _locationRepository.GetByIdAsync(location.Id);
+
 		return new LocationDto
 		{
 			Id = location.Id,
@@ -76,15 +76,15 @@ public class LocationService : ILocationService
 			Latitude = location.Latitude,
 			Longitude = location.Longitude,
 			ImageUrl = location.ImageUrl,
-			CategoryName = string.Empty
+			CategoryId = location.CategoryId, 
+			CategoryName = savedLocation?.Category != null ? savedLocation.Category.Name : string.Empty
 		};
-
 	}
 
-	public async Task<bool> DeleteLocationAsync(int id) 
-	{ 
+	public async Task<bool> DeleteLocationAsync(int id)
+	{
 		var existing = await _locationRepository.GetByIdAsync(id);
-		if(existing == null) return false;
+		if (existing == null) return false;
 
 		await _locationRepository.DeleteAsync(id);
 		return true;
@@ -118,6 +118,7 @@ public class LocationService : ILocationService
 			Address = l.Address,
 			Latitude = l.Latitude,
 			Longitude = l.Longitude,
+			CategoryId = l.CategoryId, 
 			ImageUrl = l.ImageUrl,
 			CategoryName = l.Category != null ? l.Category.Name : string.Empty
 		});
