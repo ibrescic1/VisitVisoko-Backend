@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VisitVisoko.Services.Interfaces;
 using VisitVisoko.Services.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VisitVisoko.API.Controllers;
 
@@ -31,6 +32,7 @@ public class LocationsController : ControllerBase
 	}
 
 	[HttpPost]
+	[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> Create([FromBody] CreateLocationDto dto)
 	{
 		var result = await _locationService.CreateLocationAsync(dto);
@@ -38,6 +40,7 @@ public class LocationsController : ControllerBase
 	}
 
 	[HttpDelete("{id}")]
+	[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> Delete (int id) 
 	{
 		var deleted = await _locationService.DeleteLocationAsync(id);
@@ -46,6 +49,7 @@ public class LocationsController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
+	[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> Update (int id, [FromBody] UpdateLocationDto dto)
 	{
 		var updated = await _locationService.UpdateLocationAsync(id, dto);
