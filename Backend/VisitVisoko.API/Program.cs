@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using VisitVisoko.API.Middleware;
 using VisitVisoko.Domain.Interfaces;
 using VisitVisoko.Infrastructure.Data;
 using VisitVisoko.Infrastructure.Repositories;
@@ -41,6 +42,8 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseStaticFiles();
 
