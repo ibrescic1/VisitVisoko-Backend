@@ -19,6 +19,12 @@ public class UploadController : ControllerBase
 	{
 		try
 		{
+			if (file == null || file.Length == 0)
+				return BadRequest("Fajl nije poslan.");
+
+			if (file.Length > 5 * 1024 * 1024)
+				return BadRequest("Slika ne može biti veća od 5 MB.");
+
 			var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 			var imageUrl = await _fileService.SaveFileAsync(file, allowedExtensions);
 
