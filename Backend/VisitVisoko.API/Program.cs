@@ -104,4 +104,26 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+	var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+	var adminUser = context.Users.FirstOrDefault(u => u.Username == "admin");
+	if (adminUser == null)
+	{
+		context.Users.Add(new VisitVisoko.Domain.Entities.User
+		{
+			Username = "admin",
+			PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+			Role = "Admin"
+		});
+	}
+	else
+	{
+		adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123");
+	}
+
+	context.SaveChanges();
+}
+
 app.Run();

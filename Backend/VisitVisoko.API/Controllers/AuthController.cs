@@ -1,40 +1,46 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using VisitVisoko.Services.DTOs;
+using VisitVisoko.Infrastructure.Data;
 
-
-namespace VisitVsisoko.API.Controllers;
+namespace VisitVisoko.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
 	private readonly IConfiguration _configuration;
+	private readonly ApplicationDbContext _context;
 
-	public AuthController(IConfiguration configuration)
+	public AuthController(IConfiguration configuration, ApplicationDbContext context)
 	{
 		_configuration = configuration;
+		_context = context;
 	}
 
 	[HttpPost("Login")]
-	public IActionResult Login([FromBody] LoginDto dto)
+	public async Task<IActionResult> Login([FromBody] LoginDto dto)
 	{
-		if (dto.Username == "admin" && dto.Password == "admin123")
+		var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
+
+		if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
 		{
-			var token = GenerateJwtToken(dto.Username, "Admin");
-			return Ok(new { token });
+			return Unauthorized(new { message = "Neispravno korisničko ime ili lozinka." });
 		}
 
-		return Unauthorized(new {message = "Neipravno korisnicko ime ili lozinka."});
+		var token = GenerateJwtToken(user.Id, user.Username, user.Role);
+		return Ok(new { token });
 	}
 
-	private string GenerateJwtToken(string username, string role) 
+	private string GenerateJwtToken(int userId, string username, string role)
 	{
 		var claims = new[]
 		{
+			new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
 			new Claim(ClaimTypes.Name, username),
 			new Claim(ClaimTypes.Role, role)
 		};
@@ -46,11 +52,10 @@ public class AuthController : ControllerBase
 			issuer: _configuration["Jwt:Issuer"],
 			audience: _configuration["Jwt:Audience"],
 			claims: claims,
-			expires: DateTime.Now.AddHours(4),
+			expires: DateTime.UtcNow.AddHours(4),
 			signingCredentials: creds
 		);
 
 		return new JwtSecurityTokenHandler().WriteToken(token);
 	}
-
 }

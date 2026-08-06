@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VisitVisoko.Services.DTOs;
 using VisitVisoko.Services.Interfaces;
@@ -6,6 +7,7 @@ namespace VisitVisoko.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CategoriesController : ControllerBase
 {
 	private readonly ICategoryService _service;
@@ -13,6 +15,7 @@ public class CategoriesController : ControllerBase
 	public CategoriesController(ICategoryService service) { _service = service; }
 
 	[HttpGet]
+	[AllowAnonymous]
 	public async Task <IActionResult> GetAll()
 	{
 		var result = await _service.GetAllCategoriesAsync();
@@ -20,6 +23,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
+	[AllowAnonymous]
 	public async Task <IActionResult> GetById(int id)
 	{
 		var result = await _service.GetCategoryByIdAsync(id);
