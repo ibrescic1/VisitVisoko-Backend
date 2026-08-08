@@ -14,9 +14,22 @@ public class LocationService : ILocationService
 		_locationRepository = locationRepository;
 	}
 
-	public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync()
+	public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync(string? search = null, int? categoryId = null, int page = 1, int pageSize = 10)
 	{
 		var locations = await _locationRepository.GetAllAsync();
+
+		if (!string.IsNullOrWhiteSpace(search))
+		{
+			locations = locations.Where(l => l.Title.Contains(search, StringComparison.OrdinalIgnoreCase) || l.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+		}
+
+		if(categoryId.HasValue && categoryId.Value > 0)
+		{
+			locations = locations.Where(l => l.CategoryId == categoryId.Value);
+		}
+		
+		locations = locations.Skip((page - 1) * pageSize).Take(pageSize);
+
 		return locations.Select(l => new LocationDto
 		{
 			Id = l.Id,

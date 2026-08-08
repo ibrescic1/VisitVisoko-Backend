@@ -17,9 +17,9 @@ public class LocationsController : ControllerBase
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetAll()
+	public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] int? categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
 	{
-		var locations = await _locationService.GetAllLocationsAsync();
+		var locations = await _locationService.GetAllLocationsAsync(search, categoryId, page, pageSize);
 		return Ok(locations);
 	}
 
