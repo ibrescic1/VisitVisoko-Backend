@@ -2,7 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models; 
+using Microsoft.OpenApi.Models;
 using VisitVisoko.API.Middleware;
 using VisitVisoko.Domain.Interfaces;
 using VisitVisoko.Infrastructure.Data;
@@ -107,6 +107,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
 	var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+	context.Database.Migrate();
 
 	var adminUser = context.Users.FirstOrDefault(u => u.Username == "admin");
 	if (adminUser == null)
