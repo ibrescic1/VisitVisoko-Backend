@@ -88,19 +88,13 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("AllowAll");
-
-
 app.UseSwagger();
 app.UseSwaggerUI();
-
-
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseStaticFiles();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
@@ -109,22 +103,32 @@ using (var scope = app.Services.CreateScope())
 
 	context.Database.Migrate();
 
-	var adminUser = context.Users.FirstOrDefault(u => u.Username == "admin");
+	var adminUsername = builder.Configuration["AdminSettings:Username"];
+	var adminPassword = builder.Configuration["AdminSettings:Password"];
+
+	if (string.IsNullOrWhiteSpace(adminUsername) || string.IsNullOrWhiteSpace(adminPassword))
+	{
+		throw new InvalidOperationException(
+			"AdminSettings:Username i AdminSettings:Password moraju biti postavljeni."
+		);
+	}
+
+	var adminUser = context.Users.FirstOrDefault(
+		u => u.Username == adminUsername
+	);
+
 	if (adminUser == null)
 	{
 		context.Users.Add(new VisitVisoko.Domain.Entities.User
 		{
-			Username = "admin",
-			PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+			Username = adminUsername,
+			PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
 			Role = "Admin"
 		});
-	}
-	else
-	{
-		adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123");
-	}
 
-	context.SaveChanges();
+		context.SaveChanges();
+	}
 }
+
 
 app.Run();
